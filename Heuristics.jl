@@ -17,7 +17,7 @@ module TSPHeuristics
         print(diagonal)
         
         # For loop to validate if the diagonal contains NaN values
-        for i=1:length(diagonal)
+        for i=1:eachindex(diagonal)
             if (isnan(diagonal[i]))
                 diagonal[i] = 0
             else
@@ -40,11 +40,11 @@ module TSPHeuristics
             notvisited = deleteat!(notvisited,startingcity)
             lastcity = startingcity
             tour = [startingcity]
-            while (notvisited != [])
+            while notvisited != []
                 nearestcity = notvisited[1]
                 mindistance = distmat[lastcity][nearestcity]
-                for (j in notvisited[2:])
-                    if (distmat[lastcity][j] < mindistance)
+                for j in notvisited[2:end]
+                    if distmat[lastcity][j] < mindistance
                         nearestcity = j
                         mindistance = distmat[lastcity][nearestcity]
                     end
