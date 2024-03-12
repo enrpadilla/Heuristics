@@ -8,7 +8,7 @@ module TSPHeuristics
 
     # Examples
     ```julia-repl
-    julia> nearest(4,2,[])
+    julia> nearest(4,1,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN])
     ```
     """ 
     function nearest(numcities::Int,startingcity::Int,distmat::AbstractMatrix{T} where {T<:Real})
@@ -41,25 +41,28 @@ module TSPHeuristics
             tour = [startingcity]
             while notvisited != []
                 nearestcity = notvisited[1]
-                mindistance = distmat[lastcity][nearestcity]
+                mindistance = distmat[nearestcity][lastcity]
                 for j in notvisited[2:end]
-                    if distmat[lastcity][j] < mindistance
+                    if distmat[j][lastcity] < mindistance
                         nearestcity = j
-                        mindistance = distmat[lastcity][nearestcity]
+                        mindistance = distmat[nearestcity][lastcity]
                     end
                 end
                 tour = push!(tour,nearestcity)
-                notvisited = deleteat!(notvisited,nearestcity)
+                notvisited = deleteat!(notvisited,findall(x->x==nearestcity,notvisited))
                 last = nearestcity
             end
             print(tour)
         end
     end
 
+    """
+
+    """
     #function simulatedannealing()
     
     #end
 end
 
-solution = TSPHeuristics.nearest(2,2,[NaN 2;1 NaN])
+solution = TSPHeuristics.nearest(4,1,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN])
 print(solution)
