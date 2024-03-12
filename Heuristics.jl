@@ -14,10 +14,9 @@ module TSPHeuristics
     function nearest(numcities::Int,startingcity::Int,distmat::AbstractMatrix{T} where {T<:Real})
         issquare = LinearAlgebra.checksquare(distmat)
         diagonal = diag(distmat)
-        print(diagonal)
         
         # For loop to validate if the diagonal contains NaN values
-        for i=1:eachindex(diagonal)
+        for i=1:length(diagonal)
             if (isnan(diagonal[i]))
                 diagonal[i] = 0
             else
@@ -48,14 +47,18 @@ module TSPHeuristics
                         nearestcity = j
                         mindistance = distmat[lastcity][nearestcity]
                     end
-                tour = tour + [nearestcity]
+                end
+                tour = push!(tour,nearestcity)
                 notvisited = deleteat!(notvisited,nearestcity)
                 last = nearestcity
-                end
             end
             print(tour)
         end
     end
+
+    #function simulatedannealing()
+    
+    #end
 end
 
 solution = TSPHeuristics.nearest(2,2,[NaN 2;1 NaN])
