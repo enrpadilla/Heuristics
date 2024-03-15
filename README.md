@@ -2,7 +2,7 @@
 A library of heuristic algorithms for combinatorial and continuous optimization problems.
 
 ## Motivation
-With Julia becoming an upcoming language used to solve optimization problems, my motivation for developing this package was driven by the need for researchers to focus on their research instead of coding the algorithms. Also, for expanding my knowledge of the algorithms and learning Julia.
+With Julia becoming an upcoming language used to solve optimization problems, my motivation for developing this package was driven by the need for researchers to focus on their research instead of coding the algorithms or those who want to see how the algorithms work, instead of looking at pseudocode, or include them in a simple project. Also, for expanding my knowledge of the algorithms, learning Julia, and contributing to the development of the language for those interested in optimization (like myself).
 
 ## Why use this package?
 There are several reasons why I think this package is useful:
