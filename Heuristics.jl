@@ -1,12 +1,6 @@
 module TSPHeuristics
     using LinearAlgebra
-    using Pkg
-
-    if istrue(isdir(Pkg.dir("Distributions")))
-        using Distributions
-    else
-        Pkg.add("Distributions")
-    end
+    using Random
 
     """
         nearest(numcities::Int,startingcity::Int,distmat::AbstractMatrix{T} where {T<:Real})
@@ -16,7 +10,7 @@ module TSPHeuristics
     # Examples
     ```julia-repl
     julia> TSPHeuristics.nearest(4,1,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN])
-    [1,2,3,4]
+    [1,2,3,4,1]
     ```
     """ 
     function nearest(numcities::Int,startingcity::Int,distmat::AbstractMatrix{T} where {T<:Real})
@@ -58,32 +52,31 @@ module TSPHeuristics
                 end
                 tour = push!(tour,nearestcity)
                 notvisited = deleteat!(notvisited,findall(x->x==nearestcity,notvisited))
-                last = nearestcity
             end
             return tour
         end
     end
 
     """
-        simulatedannealing(starttemp::Float64,finaltemp::Float64,soln::Vector{Int64})
+        simulatedannealing(temp::Float64,alpha::Float64,distmat::AbstractMatrix{T} where {T<:Real},solnvec::Vector{T} where T<:Int64)
 
-    Return a solution to sovle the TSP using the simulated anenaling algorithm.
+    Return a solution to sovle the TSP using the simulated annealing algorithm.
 
     # Examples
     ```julia-repl
-    julia> TSPHeuristics.simulatedannealing()
-    <TOUR OF SOLUTION AFTER RUNNING ALGO HERE>
-    ```
+    julia> TSPHeuristics.simulatedannealing(100000.0,0.0001,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN],[1,2,3,4])
+    [2,4,1,3,2]
+    ```  
     """
-    function simulatedannealing(starttemp::Float64,finaltemp::Float64,alpha::Float8,distmat::AbstractMatrix{T} where {T<:Real},soln::Vector{Int64})
+    function simulatedannealing(temp::Float64,alpha::Float64,distmat::AbstractMatrix{T} where {T<:Real},solnvec::Vector{T} where T<:Int64)
         # Initialization of variables
-        solnlen = length(soln)
-        bestlen = length(soln)
-        bestsoln = soln
-        iteration = 1
+        prevtourdist = Inf
+        solnlen = length(solnvec)
+        randtour = randperm(solnlen)
         issquare = LinearAlgebra.checksquare(distmat)
         diagonal = diag(distmat)
-        
+        besttour = []
+
         # For loop to validate if the diagonal of the distance matrix contains NaN values
         for i=1:length(diagonal)
             if isnan(diagonal[i])
@@ -94,25 +87,80 @@ module TSPHeuristics
         end
 
         # Validate user inputs
-        if starttemp <= finaltemp
-            throw(DomainError(starttemp,"The starting temperature must be greater than the final temperature."))
+        if temp <= 1
+            throw(DomainError(temp,"The temperature must be greater than 1."))
         elseif alpha <= 0 || alpha >= 1
             throw(DomainError(alpha,"The value of alpha must be between 0 and 1."))
-        elseif numcities != issquare   
+        elseif solnlen != issquare   
             throw(DomainError(distmat,"The matrix must be square and dimensions must be equal to number of cities."))
         elseif iszero(diagonal) == false
             throw(DomainError(diagonal,"The diagonal of the distance matrix must consist of NaN values. The 1's show where in the diagonal there are no NaN's where there should be."))
-        elseif length(unique(soln)) != length(soln)
-            throw(DomainError(soln,"The given tour must consist of unique values."))
+        elseif length(unique(solnvec)) != length(solnvec)
+            throw(DomainError(solnvec,"The given tour must consist of unique values."))
         else
             # Impementation of simulated annealing algorithm
-            while starttemp > finaltemp
-                i = Distributions.Uniform(1,solnlen)
+            while temp > 1
+                # Swap cities
+                i = rand(1:solnlen,1,1)
+                j = rand(1:solnlen,1,1)
+                cityi = randtour[i]
+                cityj = randtour[j]
+                randtour[i] = cityj
+                randtour[j] = cityi
 
-                starttemp = starttemp * alpha
+                # Initialize current tour distance for every temperature iteration
+                currtourdist = 0
+
+                # Calculate the current tour distance
+                for city in 1:solnlen - 1
+                    currtourdist = currtourdist + distmat[randtour[city],randtour[city + 1]]
+                end
+
+                # Calculate the cost difference between the distances
+                delta = currtourdist - prevtourdist
+
+                # Evaluate if the current tour distance is better
+                if delta < 0 || exp(-delta/temp) > rand()
+                    prevtourdist = currtourdist
+                    besttour = randtour
+                end
+                temp *= alpha
             end
+            firstcity = besttour[1]
+            push!(besttour,firstcity)
+            return besttour
         end
+    end
+
+    """
+        contsimulatedannealing()
+    
+    Return a solution to solve a continuous optimization problem using the simulated annealing algorithm.
+
+    # Examples
+    ```julia-repl
+    julia> Heuristics.contsimulatedannealing()
+    <SOLUTION HERE>
+    ```
+    """
+    function contsimulatedannealing()
+
+    end
+
+    """
+        geneticalgo
+
+    Return a solution to sovle the TSP using the genetic algorithm.
+
+    # Examples
+    ```juila-repl
+    julia> TSPHeuristics.geneticalgo()
+    <SOLUTION HERE>
+    """
+    function geneticalgo()
+
     end
 end
 
-#solution = TSPHeuristics.simulatedannealing(100,0,.5,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN],[1,2,3,4])
+solution = TSPHeuristics.simulatedannealing(100000.0,0.0001,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN],[1,2,3,4])
+print(solution)
