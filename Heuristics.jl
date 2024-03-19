@@ -53,6 +53,8 @@ module TSPHeuristics
                 tour = push!(tour,nearestcity)
                 notvisited = deleteat!(notvisited,findall(x->x==nearestcity,notvisited))
             end
+            firstcity = tour[1]
+            push!(tour,firstcity)
             return tour
         end
     end
@@ -64,11 +66,14 @@ module TSPHeuristics
 
     # Examples
     ```julia-repl
-    julia> TSPHeuristics.simulatedannealing(100000.0,0.0001,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN],[1,2,3,4])
+    julia> TSPHeuristics.simulatedannealing(100000.0,0.0001,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN],[1,2,3,4,1])
     [2,4,1,3,2]
     ```  
     """
-    function simulatedannealing(temp::Float64,alpha::Float64,distmat::AbstractMatrix{T} where {T<:Real},solnvec::Vector{T} where T<:Int64)
+    function simulatedannealing(starttemp::Float64,finaltemp::Float64,alpha::Float64,distmat::AbstractMatrix{T} where {T<:Real},solnvec::Vector{T} where T<:Int64)
+        # Remove the last element of the user given vector
+        pop!(solnvec)
+
         # Initialization of variables
         prevtourdist = Inf
         solnlen = length(solnvec)
@@ -87,8 +92,8 @@ module TSPHeuristics
         end
 
         # Validate user inputs
-        if temp <= 1
-            throw(DomainError(temp,"The temperature must be greater than 1."))
+        if starttemp <= finaltemp
+            throw(DomainError([starttemp,finaltemp],"The temperature must be greater than 1."))
         elseif alpha <= 0 || alpha >= 1
             throw(DomainError(alpha,"The value of alpha must be between 0 and 1."))
         elseif solnlen != issquare   
@@ -99,7 +104,7 @@ module TSPHeuristics
             throw(DomainError(solnvec,"The given tour must consist of unique values."))
         else
             # Impementation of simulated annealing algorithm
-            while temp > 1
+            while starttemp > finaltemp
                 # Swap cities
                 i = rand(1:solnlen,1,1)
                 j = rand(1:solnlen,1,1)
@@ -120,11 +125,11 @@ module TSPHeuristics
                 delta = currtourdist - prevtourdist
 
                 # Evaluate if the current tour distance is better
-                if delta < 0 || exp(-delta/temp) > rand()
+                if delta < 0 || exp(-delta/starttemp) > rand()
                     prevtourdist = currtourdist
                     besttour = randtour
                 end
-                temp *= alpha
+                starttemp *= alpha
             end
             firstcity = besttour[1]
             push!(besttour,firstcity)
@@ -143,8 +148,16 @@ module TSPHeuristics
     <SOLUTION HERE>
     ```
     """
-    function contsimulatedannealing()
+    function contsimulatedannealing(f,x::Float64,starttemp::Float64,finaltemp::Float64,)
+        # Initialize variables
+        y = f(x)
+        bestx, besty = x,y
 
+        # Implementation of simulated annealing algorithm
+        while starttemp > finaltemp
+            i = rand
+            
+        end
     end
 
     """
@@ -157,10 +170,18 @@ module TSPHeuristics
     julia> TSPHeuristics.geneticalgo()
     <SOLUTION HERE>
     """
-    function geneticalgo()
+    #function geneticalgo()
 
-    end
+    #end
+
+    #function contgeneticalgo()
+
+    #end
+
+    #function tabusearch()
+    
+    #end
 end
 
-solution = TSPHeuristics.simulatedannealing(100000.0,0.0001,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN],[1,2,3,4])
+solution = TSPHeuristics.nearest(4,1,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN])
 print(solution)
