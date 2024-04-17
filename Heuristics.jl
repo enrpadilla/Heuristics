@@ -3,6 +3,30 @@ module TSPHeuristics
     using Random
 
     """
+        tourlength(distmat::AbstractMatrix{T} where {T<:Real},tour)
+
+    Return the length of the tour.
+
+    # Examples
+    ```julia-repl
+    julia> TSPHeuristics.tourlength() # get input values
+    # Value of tour here.
+    ```
+    """
+    function tourlength(distmat::AbstractMatrix{T} where {T<:Real},tour) # Find out what data type tour var should be
+        # Initialization of variables
+        numcities = length(tour)
+        tourdist = distmat[tour[numcities],tour[1]]
+
+        # Calculate length of the tour
+        for i in range(1,numcities - 1)
+            tourdist = tourdist + distmat[tour[i],tour[i + 1]]
+        end
+
+        return tourdist
+    end
+
+    """
         nearest(numcities::Int,startingcity::Int,distmat::AbstractMatrix{T} where {T<:Real})
     
     Return a solution to solve the TSP using the nearest neighbor algorithm.
@@ -93,7 +117,7 @@ module TSPHeuristics
 
         # Validate user inputs
         if starttemp <= finaltemp
-            throw(DomainError([starttemp,finaltemp],"The temperature must be greater than 1."))
+            throw(DomainError([starttemp,finaltemp],"The starting temperature must be greater than the final temperature."))
         elseif alpha <= 0 || alpha >= 1
             throw(DomainError(alpha,"The value of alpha must be between 0 and 1."))
         elseif solnlen != issquare   
@@ -138,29 +162,6 @@ module TSPHeuristics
     end
 
     """
-        contsimulatedannealing()
-    
-    Return a solution to solve a continuous optimization problem using the simulated annealing algorithm.
-
-    # Examples
-    ```julia-repl
-    julia> Heuristics.contsimulatedannealing()
-    <SOLUTION HERE>
-    ```
-    """
-    function contsimulatedannealing(f,x::Float64,starttemp::Float64,finaltemp::Float64,)
-        # Initialize variables
-        y = f(x)
-        bestx, besty = x,y
-
-        # Implementation of simulated annealing algorithm
-        while starttemp > finaltemp
-            i = rand
-            
-        end
-    end
-
-    """
         geneticalgo
 
     Return a solution to sovle the TSP using the genetic algorithm.
@@ -170,18 +171,17 @@ module TSPHeuristics
     julia> TSPHeuristics.geneticalgo()
     <SOLUTION HERE>
     """
-    #function geneticalgo()
+    function geneticalgo(distmat::AbstractMatrix{T} where {T<:Real},popsize::Int,generations::Int,mutationrate::Int)
+        # Initialization of variables
+        numcities = length(distmat[1])
+        population = [rand(1:numcities) for i in range(1,popsize)]
+        lenghts = [tourlength(distmat,population[j]) for j in range(popsize)]
 
-    #end
+        order = [i for i in range(popsize)]
 
-    #function contgeneticalgo()
+        for i in range
 
-    #end
 
-    #function tabusearch()
-    
-    #end
+    end
+
 end
-
-solution = TSPHeuristics.nearest(4,1,[NaN 2 4 5;2 NaN 3 7;4 3 NaN 23;5 7 23 NaN])
-print(solution)
