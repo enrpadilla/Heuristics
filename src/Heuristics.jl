@@ -175,13 +175,22 @@ module TSPHeuristics
         # Initialization of variables
         numcities = length(distmat[1])
         population = [rand(1:numcities) for i in range(1,popsize)]
-        lenghts = [tourlength(distmat,population[j]) for j in range(popsize)]
+        lenghts = [tourlength(distmat,population[popidx]) for popidx in range(popsize)]
+        tour = [popidx for popidx in range(popsize)]
 
-        order = [i for i in range(popsize)]
+        # Generate the first best tour
+        for i in range(1, popsize - 1)
+            for j in range(i + 1, popsize)
+                if lenghts[tour[i]] > lenghts[tour[j]]
+                    tour[i], tour[j] = tour[j], tour[i]
+                end
+            end
+        end
 
-        for i in range
-
-
+        for generation in range(1,generations)
+            # Select parents from the population
+            
+        end
     end
 
 end
